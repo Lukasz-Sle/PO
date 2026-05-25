@@ -55,11 +55,13 @@ class Tile(Entity):
                     print("--> Tura Czarnych")
                     manager.whose_turn.text = "Kolej: Czarne"
                     manager.whose_turn.color = color.light_gray
+                    manager.camera_pivot.animate_rotation_y(180, duration=0.8, curve=curve.in_out_sine)
                 else:
                     manager.current_turn = color.white
                     print("--> Tura Białych")
                     manager.whose_turn.text = "Kolej: Białe"
                     manager.whose_turn.color = color.white
+                    manager.camera_pivot.animate_rotation_y(0, duration=0.8, curve=curve.in_out_sine)
 
 class Board:
     def __init__(self):

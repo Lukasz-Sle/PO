@@ -35,9 +35,18 @@ def setup_board():
 manager.setup_ui()
 setup_board()
 
-# Ustawienie kamery 
-camera.position = (3.5, 10, -9)  
-camera.rotation_x = 40          
+# Pozycja statywu
+camera_pivot = Entity(position=(3.5, 0, 3.5))
+
+# Przyczepiamy kamerę do statywu
+camera.parent = camera_pivot
+
+# Pozycja kamery względem statywu
+camera.position = (0, 10, -12.5) 
+camera.rotation_x = 40
+
+from game_manager import manager
+manager.camera_pivot = camera_pivot        
 
 # Start
 app.run()

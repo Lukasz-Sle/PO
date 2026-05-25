@@ -7,6 +7,7 @@ class GameManager:
         self.highlighted_tiles = []
         self.current_turn = color.white
         self.whose_turn = None 
+        self.camera_pivot = None
 
     def setup_ui(self):
         self.whose_turn = Text(
