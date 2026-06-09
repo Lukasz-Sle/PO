@@ -54,7 +54,7 @@ class Tile(Entity):
                         rook.x_pos = 5
                         
                         # Animacja roszady
-                        rook.animate_position((5, 0.5, rook.z_pos), duration=0.3, curve=curve.in_out_sine)
+                        rook.animate_position((5, 0, rook.z_pos), duration=0.3, curve=curve.in_out_sine)
                         
                         rook.has_moved = True
                         
@@ -67,7 +67,7 @@ class Tile(Entity):
                         rook.x_pos = 3
                         
                         # Animacja roszady
-                        rook.animate_position((3, 0.5, rook.z_pos), duration=0.3, curve=curve.in_out_sine)
+                        rook.animate_position((3, 0, rook.z_pos), duration=0.3, curve=curve.in_out_sine)
                         
                         rook.has_moved = True
                 
@@ -101,7 +101,7 @@ class Tile(Entity):
                 piece.z_pos = self.z_pos
                 
                 # # Animacja ruchu
-                piece.animate_position((self.x_pos, 0.5, self.z_pos), duration=0.3, curve=curve.in_out_sine)
+                piece.animate_position((self.x_pos, 0.0, self.z_pos), duration=0.3, curve=curve.in_out_sine)
                 
                 print(f"Wykonano ruch na X:{self.x_pos} Z:{self.z_pos}")
                 

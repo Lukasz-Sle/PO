@@ -4,7 +4,7 @@ from game_manager import manager
 
 # Inicjalizacja aplikacji
 app = Ursina()
-window.color = color.rgb(0, 0, 153) 
+window.color = color.rgb32(10, 100, 10) 
 
 # Szachownica
 game_board = Board()
@@ -17,8 +17,12 @@ camera_pivot = Entity(position=(3.5, 0, 3.5))
 camera.parent = camera_pivot
 
 # Pozycja kamery względem statywu
-camera.position = (0, 10, -12.5) 
-camera.rotation_x = 40
+camera.position = (0, 12, -12) 
+camera.rotation_x = 45
+
+# Proste oświetlenie, żeby tekstury lepiej widać
+DirectionalLight(y=2, x=1, z=1)
+AmbientLight(color=color.rgba(150, 150, 150, 0.5))
 
 manager.camera_pivot = camera_pivot        
 
