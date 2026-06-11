@@ -4,7 +4,20 @@ from game_manager import manager
 
 # Inicjalizacja aplikacji
 app = Ursina()
-window.color = color.rgb(0, 0, 153) 
+Entity(
+    parent=camera, 
+    model='quad', 
+    texture='assets/textures/kosmos.jpeg', # <--- Pamiętaj, żeby pobrać jakiś obrazek i tak go nazwać!
+    scale=(64, 36), # Robimy ogromny prostokąt, żeby wypełnił każdy monitor
+    z=50,             # Wypychamy go daleko, daleko za szachownicę
+    unlit=True        # Wyłączamy cienie na tle, żeby kosmos świecił własnym blaskiem
+) 
+
+# Czcionka
+Text.default_font = 'assets/fonts/Quantico-Regular.ttf'
+
+# Muzyka
+bg_music = Audio('assets/sounds/muzyczka.wav', loop=True, volume=0.1)
 
 # Szachownica
 game_board = Board()
@@ -17,8 +30,13 @@ camera_pivot = Entity(position=(3.5, 0, 3.5))
 camera.parent = camera_pivot
 
 # Pozycja kamery względem statywu
-camera.position = (0, 10, -12.5) 
-camera.rotation_x = 40
+camera.position = (0, 12, -12) 
+camera.rotation_x = 45
+
+# Proste oświetlenie, żeby tekstury lepiej widać
+sun = DirectionalLight(shadows=True)
+sun.look_at(Vec3(1, -1, -1)) 
+AmbientLight(color=color.rgba(150, 150, 150, 0.4)) 
 
 manager.camera_pivot = camera_pivot        
 
