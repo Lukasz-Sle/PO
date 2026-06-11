@@ -13,13 +13,14 @@ class Tile(Entity):
             shader=lit_with_shadows_shader
             
         )
-        Entity(
+        wireframe = Entity(
             parent=self,
             model='wireframe_cube',
             color=color.black,
-            scale=(1, 1.05, 1),  
-            collider=None        
+            scale=(1, 1.05, 1),
+            collider=None,
         )
+        wireframe.model.setRenderModeThickness(5)
         self.x_pos = x
         self.z_pos = z
         self.original_color = tile_color

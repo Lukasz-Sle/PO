@@ -20,6 +20,9 @@ class GameManager(Entity):
         self.sound_move = Audio('assets/sounds/move.wav', autoplay=False)
         self.sound_capture = Audio('assets/sounds/capture.wav', autoplay=False)
 
+        # Wybór zestawu figur
+        self.model_pack = 'normalnefigury'
+
         # Menu
         self.main_menu_panel = None
         self.play_again_btn = None
@@ -264,31 +267,97 @@ class GameManager(Entity):
 
         # Budowa Menu Głównego
         self.main_menu_panel = Entity(
-            parent=camera.ui, 
+            parent=camera.ui,
             enabled=False
         )
         Entity(
-            parent=self.main_menu_panel, 
-            model='quad', 
-            color=color.black90, 
-            scale=(2,2), 
-            z=0.1, 
+            parent=self.main_menu_panel,
+            model='quad',
+            color=color.black90,
+            scale=(2, 2),
+            z=0.1,
             collider='box'
-        ) 
+        )
         Text(
-            parent=self.main_menu_panel, 
-            text="SZACHY 3D", 
-            position=(0, 0.2), 
-            origin=(0,0), 
-            scale=5, 
+            parent=self.main_menu_panel,
+            text="SZACHY 3D",
+            position=(0, 0.25),
+            origin=(0, 0),
+            scale=5,
             color=color.white
         )
+        # Panel wyboru zestawu figur (styl jak historia ruchów)
+        Entity(
+            parent=self.main_menu_panel,
+            model=Quad(radius=0.05),
+            color=color.azure,
+            scale=(0.56, 0.196),
+            position=(0, -0.3),
+            z=0.02
+        )
+        Entity(
+            parent=self.main_menu_panel,
+            model=Quad(radius=0.05),
+            color=color.black66,
+            scale=(0.55, 0.19),
+            position=(0, -0.3),
+            z=0.01
+        )
+        Text(
+            parent=self.main_menu_panel,
+            text="Zestaw figur",
+            position=(0, -0.25),
+            origin=(0, 0),
+            scale=1.2,
+            color=color.azure
+        )
+
+        # Kółka radio
+        self._radio_normal_dot = Entity(parent=self.main_menu_panel, model='circle', color=color.azure,      scale=0.018, position=(-0.22, -0.3),  z=-0.01)
+        self._radio_cosmic_dot = Entity(parent=self.main_menu_panel, model='circle', color=color.light_gray, scale=0.018, position=(-0.22, -0.355), z=-0.01)
+
+        Text(parent=self.main_menu_panel, text="Normalne figury",  position=(-0.195, -0.3),   origin=(-0.5, 0), scale=1.2, color=color.white)
+        Text(parent=self.main_menu_panel, text="Kosmiczne figury", position=(-0.195, -0.355), origin=(-0.5, 0), scale=1.2, color=color.white)
+
+        def select_normal():
+            self.model_pack = 'normalnefigury'
+            self._radio_normal_dot.color = color.azure
+            self._radio_cosmic_dot.color = color.light_gray
+
+        def select_cosmic():
+            self.model_pack = 'kosmicznefigury'
+            self._radio_normal_dot.color = color.light_gray
+            self._radio_cosmic_dot.color = color.azure
+
         Button(
-            parent=self.main_menu_panel, 
-            text="GRAJ", 
-            position=(0, -0.1), 
-            scale=(0.4, 0.15), 
-            color=color.azure, 
+            parent=self.main_menu_panel,
+            model=Quad(radius=0.03),
+            text="",
+            position=(0, -0.3),
+            scale=(0.55, 0.042),
+            color=color.clear,
+            highlight_color=color.clear,
+            pressed_color=color.clear,
+            on_click=select_normal
+        )
+        Button(
+            parent=self.main_menu_panel,
+            model=Quad(radius=0.03),
+            text="",
+            position=(0, -0.355),
+            scale=(0.55, 0.042),
+            color=color.clear,
+            highlight_color=color.clear,
+            pressed_color=color.clear,
+            on_click=select_cosmic
+        )
+
+        Button(
+            parent=self.main_menu_panel,
+            text="GRAJ",
+            position=(0, -0.10),
+            scale=(0.4, 0.13),
+            color=color.green,
             on_click=self.start_game
         )
  
@@ -446,6 +515,9 @@ class GameManager(Entity):
             else:
                 self.game_over_text.text = "PAT!\nGra konczy sie remisem"
             self.current_turn = None
+        elif is_in_check:
+            side = "Białe" if self.current_turn == color.white else "Czarne"
+            self.whose_turn.text = f"Kolej: {side} — SZACH!"
 
     # Zegary
     def update(self):

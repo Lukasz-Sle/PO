@@ -30,8 +30,8 @@ camera_pivot = Entity(position=(3.5, 0, 3.5))
 camera.parent = camera_pivot
 
 # Pozycja kamery względem statywu
-camera.position = (0, 12, -12) 
-camera.rotation_x = 45
+camera.position = (0, 14, -11.7) 
+camera.rotation_x = 50
 
 # Proste oświetlenie, żeby tekstury lepiej widać
 sun = DirectionalLight(shadows=True)

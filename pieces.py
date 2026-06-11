@@ -4,7 +4,7 @@ from ursina.shaders import lit_with_shadows_shader
 
 class Piece(Entity):
     def __init__(self, x, z, piece_color, model_name=None, texture_name=None, **kwargs):
-        model_path = f'assets/models/{model_name}' if model_name else 'cube'
+        model_path = f'assets/models/{manager.model_pack}/{model_name}' if model_name else 'cube'
         
         if piece_color == color.white:
             texture_path = 'assets/textures/whitewood.jpg'
