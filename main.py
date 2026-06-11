@@ -7,10 +7,10 @@ app = Ursina()
 Entity(
     parent=camera, 
     model='quad', 
-    texture='assets/textures/kosmos.jpeg', # <--- Pamiętaj, żeby pobrać jakiś obrazek i tak go nazwać!
-    scale=(64, 36), # Robimy ogromny prostokąt, żeby wypełnił każdy monitor
-    z=50,             # Wypychamy go daleko, daleko za szachownicę
-    unlit=True        # Wyłączamy cienie na tle, żeby kosmos świecił własnym blaskiem
+    texture='assets/textures/kosmos.jpeg', 
+    scale=(64, 36), 
+    z=50,             
+    unlit=True        
 ) 
 
 # Czcionka
