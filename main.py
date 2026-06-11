@@ -4,7 +4,20 @@ from game_manager import manager
 
 # Inicjalizacja aplikacji
 app = Ursina()
-window.color = color.rgb32(10, 100, 10) 
+Entity(
+    parent=camera, 
+    model='quad', 
+    texture='assets/textures/kosmos.jpeg', 
+    scale=(64, 36), 
+    z=50,             
+    unlit=True        
+) 
+
+# Czcionka
+Text.default_font = 'assets/fonts/Quantico-Regular.ttf'
+
+# Muzyka
+bg_music = Audio('assets/sounds/muzyczka.wav', loop=True, volume=0.1)
 
 # Szachownica
 game_board = Board()
@@ -21,8 +34,9 @@ camera.position = (0, 12, -12)
 camera.rotation_x = 45
 
 # Proste oświetlenie, żeby tekstury lepiej widać
-DirectionalLight(y=2, x=1, z=1)
-AmbientLight(color=color.rgba(150, 150, 150, 0.5))
+sun = DirectionalLight(shadows=True)
+sun.look_at(Vec3(1, -1, -1)) 
+AmbientLight(color=color.rgba(150, 150, 150, 0.4)) 
 
 manager.camera_pivot = camera_pivot        
 

@@ -1,15 +1,16 @@
 from ursina import *
 from game_manager import manager
+from ursina.shaders import lit_with_shadows_shader
 
 class Piece(Entity):
     def __init__(self, x, z, piece_color, model_name=None, texture_name=None, **kwargs):
         model_path = f'assets/models/{model_name}' if model_name else 'cube'
         
         if piece_color == color.white:
-            texture_path = 'assets/photos/whitewood.jpg'
+            texture_path = 'assets/textures/whitewood.jpg'
         else:
-            texture_path = 'assets/photos/blackwood.jpg'
-        
+            texture_path = 'assets/textures/blackwood.jpg'
+
         super().__init__(
             model=model_path,
             texture=texture_path,
@@ -17,6 +18,7 @@ class Piece(Entity):
             position=(x, 0, z),
             scale = (0.3, 0.3, 0.3),
             collider='box',
+            shader=lit_with_shadows_shader,            
             **kwargs
         )
         
@@ -24,7 +26,7 @@ class Piece(Entity):
         self.z_pos = z
         self.piece_color = piece_color
         self.is_alive = True
-        self.original_color = color.white
+        self.original_color = color.white 
         self.has_moved = False
         starting_tile = manager.board.tiles.get((self.x_pos, self.z_pos))
         if starting_tile:
@@ -34,7 +36,11 @@ class Piece(Entity):
         if self.hovered and key == 'left mouse down':
             # Pilnowanie tury 
             if self.piece_color != manager.current_turn:
-                print("To nie jest twoja tura!")
+                tile_under_me = manager.board.tiles.get((self.x_pos, self.z_pos))
+                if tile_under_me in manager.highlighted_tiles:
+                    tile_under_me.perform_move() # Wywołujemy ruch klikając w figurę!
+                else:
+                    print("To nie jest twoja tura!")
                 return
             # Odznaczanie figury
             if manager.selected_piece == self:
@@ -65,7 +71,7 @@ class Piece(Entity):
 class Pawn(Piece): #Pionek
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color, model_name='pawn.obj')
-        
+
 
     def show_valid_moves(self):
         # Kierunek ruchu
@@ -126,7 +132,7 @@ class Pawn(Piece): #Pionek
 class Rook(Piece): # Wieża
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color, model_name='rook.obj')
-        
+
 
     def show_valid_moves(self):
         # (0, 1) - góra
@@ -169,7 +175,7 @@ class Rook(Piece): # Wieża
 class Knight(Piece): # Koń
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color,model_name='knight.obj')
-        
+
     def show_valid_moves(self):
         moves = [
             (1, 2), (2, 1), (-1, 2), (-2, 1),
@@ -203,7 +209,7 @@ class Knight(Piece): # Koń
 class Bishop(Piece): # Goniec
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color, model_name='bishop.obj')
-        
+
     def show_valid_moves(self):
         # (1, 1) - góra, prawo
         # (1, -1) - góra, lewo
@@ -245,7 +251,7 @@ class Bishop(Piece): # Goniec
 class Queen(Piece): # Królowa
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color,model_name='queen.obj')
-        
+
     def show_valid_moves(self):
         directions = [
             (0, 1), (0, -1), (1, 0), (-1, 0),    # Prosto i na boki
@@ -286,7 +292,7 @@ class Queen(Piece): # Królowa
 class King(Piece): # Król
     def __init__(self, x, z, piece_color):
         super().__init__(x, z, piece_color, model_name='king.obj')
-  
+
     def show_valid_moves(self):
         moves = [
             (0, 1), (0, -1), (1, 0), (-1, 0),

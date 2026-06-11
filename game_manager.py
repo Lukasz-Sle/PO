@@ -1,4 +1,4 @@
-from ursina import color, Text, Entity, Button, camera, Func, destroy, curve, time
+from ursina import color, Text, Entity, Button, camera, Func, destroy, curve, time, Audio, Quad
 
 class GameManager(Entity):
     def __init__(self):
@@ -16,6 +16,10 @@ class GameManager(Entity):
         self.en_passant_victim = None
         self.game_over_text = None 
         
+        # Dźwięki
+        self.sound_move = Audio('assets/sounds/move.wav', autoplay=False)
+        self.sound_capture = Audio('assets/sounds/capture.wav', autoplay=False)
+
         # Menu
         self.main_menu_panel = None
         self.play_again_btn = None
@@ -36,37 +40,257 @@ class GameManager(Entity):
         # Menu
         self.game_ui_panel = Entity(parent=camera.ui, enabled=False)
 
+        # Ramki
+        
+        # Ramka pod Historię ruchów
+        Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.azure,
+            scale=(0.266, 0.506),
+            position=(-0.73, 0.19),
+            z=0.02  # Obwódka jest GŁĘBIEJ
+        )
+        self.history_bg = Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.black66,
+            scale=(0.26, 0.50),
+            position=(-0.73, 0.19),
+            z=0.01  # Czarne tło jest BLIŻEJ NAS
+        )
+        
+        # Ramka górna (Kogo kolej)
+        Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.azure,
+            scale=(0.406, 0.066),
+            position=(0, 0.47),
+            z=0.02
+        )
+        self.top_bg = Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.black66,
+            scale=(0.4, 0.06),
+            position=(0, 0.47),
+            z=0.01
+        )
+
+        # Ramka pod Zegar czarnych 
+        Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.azure,
+            scale=(0.306, 0.106),
+            position=(0.7, 0.45),
+            z=0.02
+        )
+        self.timer_b_bg = Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.black66,
+            scale=(0.3, 0.1),
+            position=(0.7, 0.45),
+            z=0.01
+        )
+
+        # Ramka pod Zegar białych 
+        Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.azure,
+            scale=(0.306, 0.106),
+            position=(0.7, -0.45),
+            z=0.02
+        )
+        self.timer_w_bg = Entity(
+            parent=self.game_ui_panel,
+            model=Quad(radius=0.05),
+            color=color.black66,
+            scale=(0.3, 0.1),
+            position=(0.7, -0.45),
+            z=0.01
+        )
+
         # Kogo kolej 
-        self.whose_turn = Text(parent=self.game_ui_panel, text="Kolej: Białe", position=(0, 0.45), origin=(0, 0), scale=1.2, color=color.white)
+        self.whose_turn = Text(
+            parent=self.game_ui_panel, 
+            text="Kolej: Białe", 
+            position=(0, 0.47), 
+            origin=(0, 0), 
+            scale=1.2, 
+            color=color.white
+        )
 
         # Zegary
-        self.timer_text_black = Text(parent=self.game_ui_panel, text="Czarne: 10:00", position=(0.6, 0.45), origin=(0, 0), scale=1.5, color=color.light_gray)
-        self.timer_text_white = Text(parent=self.game_ui_panel, text="Białe: 10:00", position=(0.6, -0.45), origin=(0, 0), scale=1.5, color=color.white)
+        self.timer_text_black = Text(
+            parent=self.game_ui_panel, 
+            text="Czarne: 10:00", 
+            position=(0.7, 0.45), 
+            origin=(0, 0), 
+            scale=1.5, 
+            color=color.light_gray
+        )
+        self.timer_text_white = Text(
+            parent=self.game_ui_panel, 
+            text="Białe: 10:00", 
+            position=(0.7, -0.45), 
+            origin=(0, 0), 
+            scale=1.5, 
+            color=color.white
+        )
 
-        # Historia
-        self.history_text = Text(parent=self.game_ui_panel, text="Historia ruchów:\n", position=(-0.85, 0.45), origin=(-0.5, 0.5), scale=1.2, color=color.white)
+        # Historia 
+        self.history_text = Text(
+            parent=self.game_ui_panel, 
+            text="Historia ruchów:\n", 
+            position=(-0.84, 0.42), 
+            origin=(-0.5, 0.5), 
+            scale=1.1, 
+            color=color.white
+        )
 
         # Promocja piona
-        self.promotion_menu = Entity(parent=camera.ui, enabled=False)
-        Entity(parent=self.promotion_menu, model='quad', color=color.dark_gray, scale=(0.5, 0.3), position=(0, 0, 0.1), collider='box')
-        Text(parent=self.promotion_menu, text="Wybierz figurę do promocji:", position=(0, 0.1), origin=(0, 0), scale=1.5)
-
-        Button(parent=self.promotion_menu, text='Hetman', position=(-0.18, -0.05), scale=(0.11, 0.08), color=color.azure, on_click=Func(self.promote, 'Queen'))
-        Button(parent=self.promotion_menu, text='Wieża',  position=(-0.06, -0.05), scale=(0.11, 0.08), color=color.azure, on_click=Func(self.promote, 'Rook'))
-        Button(parent=self.promotion_menu, text='Skoczek',position=(0.06, -0.05),  scale=(0.11, 0.08), color=color.azure, on_click=Func(self.promote, 'Knight'))
-        Button(parent=self.promotion_menu, text='Goniec', position=(0.18, -0.05),  scale=(0.11, 0.08), color=color.azure, on_click=Func(self.promote, 'Bishop'))
-
-        # Ukryty napis informujący o macie lub pacie
-        self.game_over_text = Text(text="", position=(0, 0.1), origin=(0, 0), scale=4, color=color.yellow, enabled=False, background=True)
+        self.promotion_menu = Entity(
+            parent=camera.ui, 
+            enabled=False
+        )
         
-        # Przycisk restartu
-        self.play_again_btn = Button(parent=camera.ui, text="Zagraj ponownie", position=(0, -0.1), scale=(0.3, 0.1), color=color.azure, enabled=False, on_click=self.reset_and_start)
+        # 1. Ramka - OUTLINE
+        Entity(
+            parent=self.promotion_menu, 
+            model=Quad(radius=0.05), 
+            color=color.azure, 
+            scale=(0.506, 0.306), 
+            position=(0, 0), 
+            z=0.02
+        )
+        
+        # 2. Ramka - TŁO
+        Entity(
+            parent=self.promotion_menu, 
+            model=Quad(radius=0.05), 
+            color=color.black66, 
+            scale=(0.5, 0.3), 
+            position=(0, 0), 
+            z=0.01,
+            collider='box'  
+        )
+        
+        Text(
+            parent=self.promotion_menu, 
+            text="Wybierz figure do promocji:", 
+            position=(0, 0.1), 
+            origin=(0, 0), 
+            scale=1.5
+        )
+
+        Button(
+            parent=self.promotion_menu, 
+            text='Hetman', 
+            position=(-0.18, -0.05), 
+            scale=(0.11, 0.08), 
+            color=color.azure, 
+            on_click=Func(self.promote, 'Queen')
+        )
+        Button(
+            parent=self.promotion_menu, 
+            text='Wieza',  
+            position=(-0.06, -0.05), 
+            scale=(0.11, 0.08), 
+            color=color.azure, 
+            on_click=Func(self.promote, 'Rook')
+        )
+        Button(
+            parent=self.promotion_menu, 
+            text='Skoczek',
+            position=(0.06, -0.05),  
+            scale=(0.11, 0.08), 
+            color=color.azure, 
+            on_click=Func(self.promote, 'Knight')
+        )
+        Button(
+            parent=self.promotion_menu, 
+            text='Goniec', 
+            position=(0.18, -0.05),  
+            scale=(0.11, 0.08), 
+            color=color.azure, 
+            on_click=Func(self.promote, 'Bishop')
+        )
+
+        # Panel końca gry
+        self.game_over_panel = Entity(
+            parent=camera.ui, 
+            enabled=False
+        )
+
+        Entity(
+            parent=self.game_over_panel,
+            model=Quad(radius=0.05),
+            color=color.red,        
+            scale=(0.806, 0.306),   
+            position=(0, 0.25),     
+            z=0.02
+        )
+        
+        Entity(
+            parent=self.game_over_panel,
+            model=Quad(radius=0.05),
+            color=color.rgba(20/255, 5/255, 5/255, 200/255), 
+            scale=(0.8, 0.3),
+            position=(0, 0.25),
+            z=0.01
+        )
+
+        self.game_over_text = Text(
+            parent=self.game_over_panel, 
+            text="", 
+            position=(0, 0.25),     
+            origin=(0, 0), 
+            scale=3, 
+            color=color.white       
+        )
+
+        self.play_again_btn = Button(
+            parent=self.game_over_panel, 
+            text="Zagraj ponownie", 
+            position=(0, -0.05),    
+            scale=(0.3, 0.1), 
+            color=color.azure, 
+            on_click=self.reset_and_start
+        )
 
         # Budowa Menu Głównego
-        self.main_menu_panel = Entity(parent=camera.ui, enabled=False)
-        Entity(parent=self.main_menu_panel, model='quad', color=color.black90, scale=(2,2), z=0.1, collider='box') 
-        Text(parent=self.main_menu_panel, text="SZACHY 3D", position=(0, 0.2), origin=(0,0), scale=5, color=color.white)
-        Button(parent=self.main_menu_panel, text="GRAJ", position=(0, -0.1), scale=(0.4, 0.15), color=color.azure, on_click=self.start_game)
+        self.main_menu_panel = Entity(
+            parent=camera.ui, 
+            enabled=False
+        )
+        Entity(
+            parent=self.main_menu_panel, 
+            model='quad', 
+            color=color.black90, 
+            scale=(2,2), 
+            z=0.1, 
+            collider='box'
+        ) 
+        Text(
+            parent=self.main_menu_panel, 
+            text="SZACHY 3D", 
+            position=(0, 0.2), 
+            origin=(0,0), 
+            scale=5, 
+            color=color.white
+        )
+        Button(
+            parent=self.main_menu_panel, 
+            text="GRAJ", 
+            position=(0, -0.1), 
+            scale=(0.4, 0.15), 
+            color=color.azure, 
+            on_click=self.start_game
+        )
  
     def show_main_menu(self):
         self.main_menu_panel.enabled = True
@@ -90,8 +314,7 @@ class GameManager(Entity):
         self.whose_turn.text = "Kolej: Białe"
         self.whose_turn.color = color.white
         self.camera_pivot.rotation_y = 0
-        self.game_over_text.enabled = False
-        self.play_again_btn.enabled = False
+        self.game_over_panel.enabled = False
         self.selected_piece = None
         self.en_passant_target = None  
         self.en_passant_victim = None
@@ -216,19 +439,13 @@ class GameManager(Entity):
             if moves_available: break
                 
         if not moves_available:
-            self.game_over_text.enabled = True
-            self.play_again_btn.enabled = True 
+            self.game_over_panel.enabled = True 
             if is_in_check:
                 zwyciezca = "BIAŁE" if enemy_color == color.white else "CZARNE"
-                self.game_over_text.text = f"SZACH-MAT!\nWygrywają {zwyciezca}"
+                self.game_over_text.text = "SZACH-MAT!\nWygrywaja {}".format(zwyciezca)
             else:
                 self.game_over_text.text = "PAT!\nGra konczy sie remisem"
-            self.current_turn = None 
-        else:
-            if is_in_check:
-                print("SZACH!")
-                self.whose_turn.text += " (SZACH!)"
-                self.whose_turn.color = color.red
+            self.current_turn = None
 
     # Zegary
     def update(self):
